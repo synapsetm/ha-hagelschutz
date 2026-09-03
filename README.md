@@ -1,5 +1,20 @@
 # Hagelschutz – einfach automatisch (Home Assistant)
 
+> [!WARNING]
+> **Entwicklungsstand — nicht installieren.**
+>
+> Diese Integration ist noch **nicht** gegen eine reale Anlage verifiziert. Der
+> Poll-Request wird von der VKF-Schnittstelle derzeit mit `HTTP 400` abgelehnt,
+> die Ursache ist offen (siehe [Offener Blocker](#offener-blocker)). Die
+> Integration liefert damit **kein** verlässliches Hagelwarnsignal.
+>
+> Wer sie trotzdem einrichtet, riskiert zweierlei: Storen, die im Hagelfall nicht
+> hochfahren, und — sobald das Objekt im VKF-Portal aktiv ist — automatische
+> SMS/E-Mail-Meldungen an den hinterlegten Erst- und Zweitkontakt, wenn eine
+> Stunde am Stück keine Daten abgeholt werden.
+>
+> Bis dieser Hinweis verschwindet: nur zum Mitlesen und Mitentwickeln.
+
 Custom Integration, die das Hagelwarnsignal der VKF/VKG als Binary Sensor in Home
 Assistant bereitstellt. Sie ersetzt die Signalbox: Home Assistant pollt die
 VKF-Schnittstelle selbst und fährt die Storen über eigene Automationen hoch.
@@ -9,7 +24,32 @@ VKF-Schnittstelle selbst und fährt die Storen über eigene Automationen hoch.
 - **Schnittstelle:** `https://meteo.netitservices.com/api/v1` (Details in
   [`docs/vkf-schnittstellenbeschreibung.pdf`](docs/vkf-schnittstellenbeschreibung.pdf))
 
+## Offener Blocker
+
+Der Poll-Request antwortet für eine reale, im Portal registrierte Seriennummer
+durchgängig mit `HTTP 400` und leerem Body — unabhängig vom `hwtypeId`.
+
+Was bisher belegt ist:
+
+| Beobachtung | Schluss |
+|---|---|
+| Beliebige unbekannte 12-stellige ID → `404` | Die API prüft das Format nicht; `404` heisst „Gerät unbekannt" |
+| Reale Seriennummer → `400`, nicht `404` | Die Seriennummer **ist** dem System bekannt |
+| `hwtypeId` 1–30 → durchgängig `400` | Der Wert allein erklärt die Ablehnung nicht |
+| Antwort hat `content-length: 0` | Die API nennt keinen Grund |
+
+Die Schnittstellenbeschreibung beschreibt den Fehlerfall nur als „Some HTTP
+Status Error & message" und lässt das Feld „Schnittstelle (hwtypeId)" als
+objektspezifischen Platzhalter offen. Offene Fragen an die VKF: Welcher
+`hwtypeId`-Wert gilt für das Objekt, und muss ein Gerät im Portal erst
+freigeschaltet werden, bevor die API Daten liefert?
+
+Sobald das geklärt ist, wird die Zuordnung von `400` im Code entsprechend
+präzisiert und dieser Abschnitt entfernt.
+
 ## Installation
+
+Erst sinnvoll, wenn der Blocker oben geklärt ist.
 
 ### HACS
 1. HACS → Integrationen → ⋮ → *Custom repositories*
