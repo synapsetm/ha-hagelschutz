@@ -1,0 +1,43 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hagelschutz",
+        "description": "Zugangsdaten aus dem VKF-Portal eintragen. Die Device-ID ist das einzige Geheimnis dieser Schnittstelle — nicht weitergeben.",
+        "data": {
+          "device_id": "Device-ID",
+          "hwtype_id": "Hardware-Typ-ID"
+        },
+        "data_description": {
+          "device_id": "12-stelliger eindeutiger Identifier (Seriennummer / MAC-Adresse)",
+          "hwtype_id": "Ganzzahl, die den Gerätetyp bezeichnet"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung fehlgeschlagen",
+      "invalid_device": "Die Schnittstelle kennt diese Device-ID nicht",
+      "unknown": "Unerwarteter Fehler"
+    },
+    "abort": {
+      "already_configured": "Dieses Gerät ist bereits eingerichtet"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "hail_warning": {
+        "name": "Hagelwarnung"
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "no_hail": "Keine Hagelwarnung",
+          "hail": "Hagelwarnung",
+          "test_alarm": "Testalarm"
+        }
+      }
+    }
+  }
+}

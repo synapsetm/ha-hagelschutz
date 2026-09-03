@@ -1,0 +1,21 @@
+[project]
+name = "ha-hagelschutz"
+version = "0.1.0"
+description = "Home Assistant custom integration for the VKF/VKG hail warning signal"
+requires-python = ">=3.13"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "BLE", "SIM", "D", "ASYNC", "RUF"]
+# N818: CannotConnect/InvalidDevice follow the Home Assistant naming convention.
+# RUF001: the official product name contains an en dash.
+ignore = ["D203", "D213", "N818", "RUF001"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D103"]

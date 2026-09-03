@@ -1,0 +1,4 @@
+# Pin to the pytest-homeassistant-custom-component release matching the
+# Home Assistant version you develop against.
+pytest-homeassistant-custom-component==0.13.*
+aioresponses>=0.7.6

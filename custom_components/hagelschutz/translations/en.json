@@ -1,0 +1,43 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hagelschutz",
+        "description": "Enter the credentials from the VKF portal. The device ID is the only secret of this API — keep it private.",
+        "data": {
+          "device_id": "Device ID",
+          "hwtype_id": "Hardware type ID"
+        },
+        "data_description": {
+          "device_id": "12-character unique identifier (serial number / MAC address)",
+          "hwtype_id": "Integer identifying the device type"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_device": "The API does not know this device ID",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This device is already configured"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "hail_warning": {
+        "name": "Hail warning"
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "no_hail": "No hail warning",
+          "hail": "Hail warning",
+          "test_alarm": "Test alarm"
+        }
+      }
+    }
+  }
+}
