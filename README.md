@@ -107,24 +107,9 @@ automation:
         entity_id: binary_sensor.hagelschutz_hagelwarnung
         to: "on"
     actions:
-      - action: scene.create
-        data:
-          scene_id: storen_vor_hagel
-          snapshot_entities: [cover.storen_sued, cover.storen_west]
       - action: cover.open_cover
         target:
           entity_id: [cover.storen_sued, cover.storen_west]
-
-  - alias: "Hagel – Entwarnung"
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.hagelschutz_hagelwarnung
-        to: "off"
-        for: "00:20:00"
-    actions:
-      - action: scene.turn_on
-        target:
-          entity_id: scene.storen_vor_hagel
 
   - alias: "Hagelschutz – Ausfall melden"
     triggers:
@@ -138,8 +123,28 @@ automation:
           message: "Hagelschutz-API seit 15 Minuten nicht erreichbar."
 ```
 
-Der `scene.create`-Snapshot ersetzt das zweite Signal der Signalbox, das die
-Storen nach der Entwarnung in die Ausgangsposition zurückfährt.
+### Kein automatisches Herunterfahren
+
+Die Signalbox, die diese Integration ersetzt, sendet nach der Entwarnung ein
+zweites Signal und fährt die Storen in die Ausgangsposition zurück. Hier ist das
+**bewusst nicht** nachgebaut.
+
+Der Grund ist Sicherheit: Zwischen Warnung und Entwarnung liegen Minuten bis
+Stunden. In dieser Zeit kann jemand in den Garten gegangen sein oder eine
+Terrassentür geöffnet haben. Ein Storen, der ohne Anwesenheit von selbst
+herunterfährt, kann jemanden aussperren oder eine Tür blockieren. Hochfahren ist
+in jeder Situation ungefährlich, Herunterfahren nicht.
+
+Wer es dennoch automatisieren will, nimmt vor dem Hochfahren einen
+`scene.create`-Snapshot der Positionen und stellt ihn nach der Entwarnung mit
+`scene.turn_on` wieder her — abgesichert über eine Anwesenheits- oder
+Türkontakt-Bedingung.
+
+> [!NOTE]
+> Die VKF-Funktionskontrolle sieht vor, dass die Storen nach dem Deaktivieren des
+> Testalarms wieder herunterfahren. Ohne automatisches Herunterfahren ist dieser
+> Schritt manuell auszuführen. Wenn du das Abnahmeprotokoll unterschreibst, kläre
+> vorher mit der VKF, ob das für dein Objekt so akzeptiert wird.
 
 ## Betriebshinweise
 

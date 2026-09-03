@@ -165,24 +165,9 @@ automation:
         entity_id: binary_sensor.hagelwarnung
         to: "on"
     actions:
-      - action: scene.create
-        data:
-          scene_id: storen_vor_hagel
-          snapshot_entities: [cover.storen_sued, cover.storen_west]
       - action: cover.open_cover
         target:
           entity_id: [cover.storen_sued, cover.storen_west]
-
-  - alias: "Hagel – Entwarnung"
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.hagelwarnung
-        to: "off"
-        for: "00:20:00"
-    actions:
-      - action: scene.turn_on
-        target:
-          entity_id: scene.storen_vor_hagel
 
   - alias: "Hagelschutz – Ausfall melden"
     triggers:
@@ -196,5 +181,8 @@ automation:
           message: "Hagelschutz-API seit 15 Minuten nicht erreichbar."
 ```
 
-Der `scene.create`-Snapshot ersetzt das zweite Signal der Signalbox, das die Storen
-nach der Entwarnung in die Ausgangsposition zurückfährt.
+Kein automatisches Herunterfahren nach der Entwarnung. Die Signalbox macht das
+über ein zweites Signal; hier wird bewusst darauf verzichtet, weil zwischen
+Warnung und Entwarnung jemand in den Garten gegangen oder eine Terrassentür
+geöffnet haben kann. Hochfahren ist immer ungefährlich, Herunterfahren ohne
+Anwesenheitsprüfung nicht. Begründung und Alternative stehen im README.
