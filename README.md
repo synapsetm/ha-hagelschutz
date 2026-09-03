@@ -6,8 +6,7 @@ VKF-Schnittstelle selbst und fährt die Storen über eigene Automationen hoch.
 
 - **Domain:** `hagelschutz`
 - **IoT-Class:** `cloud_polling`, festes Intervall von 120 Sekunden
-- **Schnittstelle:** `https://meteo.netitservices.com/api/v1` (Details in
-  [`docs/vkf-schnittstellenbeschreibung.pdf`](docs/vkf-schnittstellenbeschreibung.pdf))
+- **Schnittstelle:** `https://meteo.netitservices.com/api/v1`
 - **Status:** gegen eine reale Anlage verifiziert — Funktionskontrolle per
   Testalarm durchlaufen, `currentState` 0 und 2 in Home Assistant bestätigt
 
@@ -207,7 +206,11 @@ die echte VKF-Schnittstelle.
 ## Dokumente
 
 - [`docs/SPEC-hagelschutz-ha-integration.md`](docs/SPEC-hagelschutz-ha-integration.md) — Implementierungs-Spec
-- [`docs/vkf-schnittstellenbeschreibung.pdf`](docs/vkf-schnittstellenbeschreibung.pdf) — offizielle VKF-Schnittstellenbeschreibung
+
+Die offizielle VKF-Schnittstellenbeschreibung liegt diesem Repository bewusst
+**nicht** bei: Sie wird bei der Anmeldung von der VKF zugestellt, und eine Kopie
+hier würde veralten. Der in diesem README dokumentierte Vertrag ist gegen eine
+reale Anlage verifiziert — verbindlich ist im Zweifel das Dokument der VKF.
 
 ## Lizenz
 

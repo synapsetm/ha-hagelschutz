@@ -11,3 +11,7 @@ htmlcov/
 # Never commit real credentials — the device ID is the API's only secret.
 secrets.yaml
 .env
+
+# Interface description from the VKF — not ours to publish, and a copy that ages.
+docs/vkf-schnittstellenbeschreibung.pdf
+*.pdf
