@@ -1,17 +1,5 @@
 # Hagelschutz – einfach automatisch (Home Assistant)
 
-> [!WARNING]
-> **Entwicklungsstand — Funktionskontrolle steht aus.**
->
-> Der API-Zugriff ist inzwischen gegen eine reale Anlage bestätigt (`HTTP 200`).
-> Was noch fehlt, ist der vollständige Durchlauf in Home Assistant inklusive
-> Testalarm über das VKF-Portal. Bis dahin nicht als alleiniger Hagelschutz
-> verlassen.
->
-> Beachte ausserdem: Sobald das Objekt im Portal aktiv ist, meldet die VKF per
-> SMS/E-Mail an Erst- und Zweitkontakt, wenn eine Stunde am Stück keine Daten
-> abgeholt werden.
-
 Custom Integration, die das Hagelwarnsignal der VKF/VKG als Binary Sensor in Home
 Assistant bereitstellt. Sie ersetzt die Signalbox: Home Assistant pollt die
 VKF-Schnittstelle selbst und fährt die Storen über eigene Automationen hoch.
@@ -20,6 +8,13 @@ VKF-Schnittstelle selbst und fährt die Storen über eigene Automationen hoch.
 - **IoT-Class:** `cloud_polling`, festes Intervall von 120 Sekunden
 - **Schnittstelle:** `https://meteo.netitservices.com/api/v1` (Details in
   [`docs/vkf-schnittstellenbeschreibung.pdf`](docs/vkf-schnittstellenbeschreibung.pdf))
+- **Status:** gegen eine reale Anlage verifiziert — Funktionskontrolle per
+  Testalarm durchlaufen, `currentState` 0 und 2 in Home Assistant bestätigt
+
+> [!IMPORTANT]
+> Sobald die Alarmkette im VKF-Portal aktiviert ist, meldet die VKF per
+> SMS/E-Mail an Erst- und Zweitkontakt, wenn eine Stunde am Stück keine Daten
+> abgeholt werden. Kurze Neustarts sind unkritisch, längere Ausfälle nicht.
 
 ## Die `hwtypeId`
 
