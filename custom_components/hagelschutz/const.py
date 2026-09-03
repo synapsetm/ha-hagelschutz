@@ -30,7 +30,8 @@ MANUFACTURER: Final = "VKF/VKG"
 MODEL: Final = "Hagelschutz – einfach automatisch"
 CONFIGURATION_URL: Final = "https://meteo.netitservices.com"
 
-# The interface description calls the field "MAC-Adresse (deviceID)" but requires
-# a 12-character identifier, so the usual MAC separators have to go.
+# The interface description labels the field "MAC-Adresse (deviceID)" but defines
+# it as the 12-character serial number, and that is what the portal shows. The
+# separators are stripped anyway, in case someone enters a MAC after all.
 DEVICE_ID_SEPARATORS: Final = ":-. "
 DEVICE_ID_LENGTH: Final = 12
