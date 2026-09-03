@@ -63,6 +63,8 @@ async def test_user_flow_duplicate_aborts(
     [
         (404, "invalid_device"),
         (403, "invalid_device"),
+        (400, "invalid_parameters"),
+        (422, "invalid_parameters"),
         (500, "unknown"),
     ],
 )
@@ -109,3 +111,38 @@ async def test_user_flow_cannot_connect(
         await hass.async_block_till_done()
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
+
+
+async def test_device_id_separators_are_stripped(
+    hass: HomeAssistant, mock_setup_entry: None
+) -> None:
+    """A MAC address entered with colons is normalised to 12 characters."""
+    result = await _start_flow(hass)
+
+    with aioresponses() as mocked:
+        mocked.get(
+            f"{POLL_URL}?hwtypeId={HWTYPE_ID}",
+            payload=load_fixture_json("poll_no_hail.json"),
+        )
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            {CONF_DEVICE_ID: "AA:BB:CC:DD:EE:FF", CONF_HWTYPE_ID: HWTYPE_ID},
+        )
+        await hass.async_block_till_done()
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"][CONF_DEVICE_ID] == DEVICE_ID
+
+
+async def test_device_id_wrong_length_is_rejected(
+    hass: HomeAssistant, mock_setup_entry: None
+) -> None:
+    """A device ID that is not 12 characters never reaches the API."""
+    result = await _start_flow(hass)
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_DEVICE_ID: "TOOSHORT", CONF_HWTYPE_ID: HWTYPE_ID}
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {CONF_DEVICE_ID: "invalid_device_id_format"}

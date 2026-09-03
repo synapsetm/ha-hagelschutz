@@ -29,3 +29,8 @@ STATE_TEST_ALARM: Final = 2
 MANUFACTURER: Final = "VKF/VKG"
 MODEL: Final = "Hagelschutz – einfach automatisch"
 CONFIGURATION_URL: Final = "https://meteo.netitservices.com"
+
+# The interface description calls the field "MAC-Adresse (deviceID)" but requires
+# a 12-character identifier, so the usual MAC separators have to go.
+DEVICE_ID_SEPARATORS: Final = ":-. "
+DEVICE_ID_LENGTH: Final = 12

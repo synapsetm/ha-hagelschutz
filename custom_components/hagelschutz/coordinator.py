@@ -40,6 +40,14 @@ class InvalidDevice(HagelschutzApiError):
     """The device is unknown to the API or not authorised (401/403/404)."""
 
 
+class InvalidParameters(HagelschutzApiError):
+    """The API rejected the request parameters themselves (400/422).
+
+    Seen in practice when the device ID is not in the documented 12-character
+    form, or when the hwtypeId does not exist.
+    """
+
+
 async def async_poll(
     session: aiohttp.ClientSession, device_id: str, hwtype_id: int
 ) -> int:
@@ -57,6 +65,15 @@ async def async_poll(
         ) as response:
             if response.status in (401, 403, 404):
                 raise InvalidDevice(f"API rejected the device (HTTP {response.status})")
+            if response.status in (400, 422):
+                _LOGGER.debug(
+                    "Poll rejected with HTTP %s, body: %s",
+                    response.status,
+                    (await response.text())[:500],
+                )
+                raise InvalidParameters(
+                    f"API rejected the parameters (HTTP {response.status})"
+                )
             if response.status != 200:
                 # The body often carries the actual reason (e.g. an unknown
                 # hwtypeId). Only at debug level — it is server-controlled and

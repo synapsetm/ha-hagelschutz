@@ -9,10 +9,29 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import CONF_DEVICE_ID, CONF_HWTYPE_ID, DOMAIN
-from .coordinator import CannotConnect, HagelschutzApiError, InvalidDevice, async_poll
+from .const import (
+    CONF_DEVICE_ID,
+    CONF_HWTYPE_ID,
+    DEVICE_ID_LENGTH,
+    DEVICE_ID_SEPARATORS,
+    DOMAIN,
+)
+from .coordinator import (
+    CannotConnect,
+    HagelschutzApiError,
+    InvalidDevice,
+    InvalidParameters,
+    async_poll,
+)
 
 _LOGGER = logging.getLogger(__name__)
+
+def normalize_device_id(value: str) -> str:
+    """Strip the separators a MAC address is usually written with."""
+    for separator in DEVICE_ID_SEPARATORS:
+        value = value.replace(separator, "")
+    return value.strip()
+
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
@@ -34,8 +53,15 @@ class HagelschutzConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            device_id = user_input[CONF_DEVICE_ID].strip()
+            device_id = normalize_device_id(user_input[CONF_DEVICE_ID])
             hwtype_id = user_input[CONF_HWTYPE_ID]
+
+            if len(device_id) != DEVICE_ID_LENGTH:
+                return self.async_show_form(
+                    step_id="user",
+                    data_schema=STEP_USER_DATA_SCHEMA,
+                    errors={CONF_DEVICE_ID: "invalid_device_id_format"},
+                )
 
             await self.async_set_unique_id(device_id)
             self._abort_if_unique_id_configured()
@@ -46,6 +72,9 @@ class HagelschutzConfigFlow(ConfigFlow, domain=DOMAIN):
             except InvalidDevice as err:
                 _LOGGER.debug("Device rejected by the API: %s", err)
                 errors["base"] = "invalid_device"
+            except InvalidParameters as err:
+                _LOGGER.debug("API rejected the parameters: %s", err)
+                errors["base"] = "invalid_parameters"
             except CannotConnect as err:
                 _LOGGER.debug("Cannot reach the API: %s", err)
                 errors["base"] = "cannot_connect"
