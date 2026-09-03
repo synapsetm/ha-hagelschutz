@@ -8,7 +8,9 @@ VKF-Schnittstelle selbst und fährt die Storen über eigene Automationen hoch.
 - **IoT-Class:** `cloud_polling`, festes Intervall von 120 Sekunden
 - **Schnittstelle:** `https://meteo.netitservices.com/api/v1`
 - **Status:** gegen eine reale Anlage verifiziert — Funktionskontrolle per
-  Testalarm durchlaufen, `currentState` 0 und 2 in Home Assistant bestätigt
+  Testalarm durchlaufen, `currentState` 0 und 2 in Home Assistant bestätigt.
+  Ausfallpfad ebenfalls geprüft: Bei gestopptem Polling werden die Entitäten
+  `unavailable`, und `Hagelschutz – Ausfall` meldet sich nach 15 Minuten
 
 > [!IMPORTANT]
 > Sobald die Alarmkette im VKF-Portal aktiviert ist, meldet die VKF per
@@ -194,6 +196,13 @@ Datenabholung und nur im Zeitfenster 08:00–22:00. Die lokale Meldung kommt nac
 15 Minuten und rund um die Uhr — sie ersetzt die Alarmkette nicht, sie kommt ihr
 zuvor. Ist Home Assistant selbst tot, bleibt nur die Alarmkette; auch deshalb
 gehört sie aktiviert.
+
+Beides lässt sich in einem Durchgang prüfen: Integration deaktivieren
+(*Einstellungen → Geräte & Dienste → Hagelschutz → ⋮ → Deaktivieren*), eine
+Stunde warten, danach wieder aktivieren. Die lokale Meldung muss nach
+15 Minuten kommen, die der VKF nach etwa einer Stunde. Den Test zwischen 08:00
+und 20:00 starten, damit die Stunde noch ins Meldefenster fällt, und einen Tag
+ohne Gewitterprognose wählen — währenddessen besteht kein Hagelschutz.
 
 ### Kein automatisches Herunterfahren
 
