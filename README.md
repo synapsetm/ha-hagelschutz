@@ -1,19 +1,16 @@
 # Hagelschutz – einfach automatisch (Home Assistant)
 
 > [!WARNING]
-> **Entwicklungsstand — nicht installieren.**
+> **Entwicklungsstand — Funktionskontrolle steht aus.**
 >
-> Diese Integration ist noch **nicht** gegen eine reale Anlage verifiziert. Der
-> Poll-Request wird von der VKF-Schnittstelle derzeit mit `HTTP 400` abgelehnt,
-> die Ursache ist offen (siehe [Offener Blocker](#offener-blocker)). Die
-> Integration liefert damit **kein** verlässliches Hagelwarnsignal.
+> Der API-Zugriff ist inzwischen gegen eine reale Anlage bestätigt (`HTTP 200`).
+> Was noch fehlt, ist der vollständige Durchlauf in Home Assistant inklusive
+> Testalarm über das VKF-Portal. Bis dahin nicht als alleiniger Hagelschutz
+> verlassen.
 >
-> Wer sie trotzdem einrichtet, riskiert zweierlei: Storen, die im Hagelfall nicht
-> hochfahren, und — sobald das Objekt im VKF-Portal aktiv ist — automatische
-> SMS/E-Mail-Meldungen an den hinterlegten Erst- und Zweitkontakt, wenn eine
-> Stunde am Stück keine Daten abgeholt werden.
->
-> Bis dieser Hinweis verschwindet: nur zum Mitlesen und Mitentwickeln.
+> Beachte ausserdem: Sobald das Objekt im Portal aktiv ist, meldet die VKF per
+> SMS/E-Mail an Erst- und Zweitkontakt, wenn eine Stunde am Stück keine Daten
+> abgeholt werden.
 
 Custom Integration, die das Hagelwarnsignal der VKF/VKG als Binary Sensor in Home
 Assistant bereitstellt. Sie ersetzt die Signalbox: Home Assistant pollt die
@@ -24,32 +21,38 @@ VKF-Schnittstelle selbst und fährt die Storen über eigene Automationen hoch.
 - **Schnittstelle:** `https://meteo.netitservices.com/api/v1` (Details in
   [`docs/vkf-schnittstellenbeschreibung.pdf`](docs/vkf-schnittstellenbeschreibung.pdf))
 
-## Offener Blocker
+## Die `hwtypeId`
 
-Der Poll-Request antwortet für eine reale, im Portal registrierte Seriennummer
-durchgängig mit `HTTP 400` und leerem Body — unabhängig vom `hwtypeId`.
+Der Wert ist **objektspezifisch** und wird von der VKF vergeben. Er steht weder
+in der Schnittstellenbeschreibung noch zwingend im Portal — auf dem Datenblatt
+ist das Feld „Schnittstelle (hwtypeId)" ein Platzhalter, den die VKF pro Anlage
+ausfüllt. Beobachtete Werte liegen im dreistelligen Bereich, sind also nicht
+sinnvoll zu erraten.
 
-Was bisher belegt ist:
+Falls du ihn nicht hast: bei der VKF anfragen. Woran du erkennst, dass er fehlt
+oder falsch ist:
 
-| Beobachtung | Schluss |
+| Antwort | Bedeutung |
 |---|---|
-| Beliebige unbekannte 12-stellige ID → `404` | Die API prüft das Format nicht; `404` heisst „Gerät unbekannt" |
-| Reale Seriennummer → `400`, nicht `404` | Die Seriennummer **ist** dem System bekannt |
-| `hwtypeId` 1–30 → durchgängig `400` | Der Wert allein erklärt die Ablehnung nicht |
-| Antwort hat `content-length: 0` | Die API nennt keinen Grund |
+| `200` + JSON | Beide Werte stimmen |
+| `400`, leerer Body | Seriennummer bekannt, aber `hwtypeId` passt nicht |
+| `404` | Seriennummer unbekannt |
 
-Die Schnittstellenbeschreibung beschreibt den Fehlerfall nur als „Some HTTP
-Status Error & message" und lässt das Feld „Schnittstelle (hwtypeId)" als
-objektspezifischen Platzhalter offen. Offene Fragen an die VKF: Welcher
-`hwtypeId`-Wert gilt für das Objekt, und muss ein Gerät im Portal erst
-freigeschaltet werden, bevor die API Daten liefert?
+## Undokumentierte Response-Felder
 
-Sobald das geklärt ist, wird die Zuordnung von `400` im Code entsprechend
-präzisiert und dieser Abschnitt entfernt.
+Die reale Antwort enthält mehr, als die Schnittstellenbeschreibung nennt:
+
+```json
+{"currentState": 0, "newProgVer": 0, "hailState": 0, "windState": 0}
+```
+
+Dokumentiert und damit verbindlich ist allein `currentState`. Diese Integration
+wertet nur dieses Feld aus. `hailState`, `windState` und `newProgVer` sind
+undokumentiert, ihre Bedeutung ist nicht zugesichert und sie können jederzeit
+verschwinden — `windState` deutet auf ein Windwarnsignal hin, ist aber nicht
+bestätigt.
 
 ## Installation
-
-Erst sinnvoll, wenn der Blocker oben geklärt ist.
 
 ### HACS
 1. HACS → Integrationen → ⋮ → *Custom repositories*
