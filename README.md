@@ -139,3 +139,7 @@ die echte VKF-Schnittstelle.
 
 - [`docs/SPEC-hagelschutz-ha-integration.md`](docs/SPEC-hagelschutz-ha-integration.md) — Implementierungs-Spec
 - [`docs/vkf-schnittstellenbeschreibung.pdf`](docs/vkf-schnittstellenbeschreibung.pdf) — offizielle VKF-Schnittstellenbeschreibung
+
+## Lizenz
+
+MIT — siehe [`LICENSE`](LICENSE).
