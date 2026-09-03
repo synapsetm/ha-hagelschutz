@@ -96,23 +96,66 @@ der Watchdog: darauf lässt sich eine Ausfall-Automation bauen.
 
 ## Automationen
 
-Die Integration liefert nur das Signal. Was mit den Storen passiert, gehört in
-eigene Automationen:
+Die Integration liefert nur das Signal. Was damit geschieht, gehört in eigene
+Automationen. Vier ergeben zusammen ein vollständiges Bild — nur die erste
+greift in die Anlage ein, die anderen drei informieren.
+
+| Automation | Auslöser | Wirkung |
+|---|---|---|
+| `Hagelschutz – Storen hoch` | Warnung geht an | Storen hoch, Meldung |
+| `Hagelschutz – Entwarnung` | Warnung 20 min aus | Meldung: Storen können herunter |
+| `Hagelschutz – Ausfall` | 15 min `unavailable` | Meldung: kein Signal mehr |
+| `Hagelschutz – Wiederherstellung` | wieder erreichbar | Meldung: Signal zurück |
+
+Vor dem Übernehmen drei Platzhalter ersetzen: `<geraet>` durch dein
+Companion-App-Gerät (zu finden unter *Entwicklerwerkzeuge → Aktionen*, Suche
+`notify.mobile_app`), die `cover.`-Entitäten durch deine, und
+`binary_sensor.hagelschutz_hagelwarnung` durch die tatsächliche Entity-ID.
 
 ```yaml
 automation:
-  - alias: "Hagel – Storen hoch"
+  - alias: "Hagelschutz – Storen hoch"
+    description: "Fährt die Storen hoch, sobald eine Hagelwarnung eintrifft."
     triggers:
       - trigger: state
         entity_id: binary_sensor.hagelschutz_hagelwarnung
         to: "on"
     actions:
+      # Erst handeln, dann melden — die Storen sollen auch hochfahren,
+      # wenn die Benachrichtigung scheitert.
       - action: cover.open_cover
         target:
           entity_id: [cover.storen_sued, cover.storen_west]
+      - action: notify.mobile_app_<geraet>
+        data:
+          title: >-
+            {{ 'Testalarm Hagel'
+               if state_attr('binary_sensor.hagelschutz_hagelwarnung', 'test_alarm')
+               else 'Hagelwarnung' }}
+          message: "Storen wurden hochgefahren."
+    mode: single
 
-  - alias: "Hagelschutz – Ausfall melden"
+  - alias: "Hagelschutz – Entwarnung"
+    description: "Meldet, dass die Storen wieder heruntergefahren werden können."
     triggers:
+      # from: "on" verhindert eine Entwarnung für einen Hagel, den es nie gab:
+      # ohne das feuert auch der Wechsel von unavailable auf off.
+      - trigger: state
+        entity_id: binary_sensor.hagelschutz_hagelwarnung
+        from: "on"
+        to: "off"
+        for: "00:20:00"
+    actions:
+      - action: notify.mobile_app_<geraet>
+        data:
+          title: "Hagel vorbei"
+          message: "Entwarnung seit 20 Minuten. Storen können wieder herunter."
+    mode: single
+
+  - alias: "Hagelschutz – Ausfall"
+    description: "Meldet, wenn die Schnittstelle länger kein Signal liefert."
+    triggers:
+      # 15 Minuten filtern Neustarts und kurze Netzaussetzer weg.
       - trigger: state
         entity_id: binary_sensor.hagelschutz_hagelwarnung
         to: "unavailable"
@@ -120,8 +163,37 @@ automation:
     actions:
       - action: notify.mobile_app_<geraet>
         data:
-          message: "Hagelschutz-API seit 15 Minuten nicht erreichbar."
+          title: "Hagelschutz gestört"
+          message: "Schnittstelle seit 15 Minuten nicht erreichbar."
+    mode: single
+
+  - alias: "Hagelschutz – Wiederherstellung"
+    description: "Meldet, dass wieder ein Signal ankommt."
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.hagelschutz_hagelwarnung
+        from: "unavailable"
+        for: "00:02:00"
+    actions:
+      - action: notify.mobile_app_<geraet>
+        data:
+          title: "Hagelschutz wieder online"
+          message: "Schnittstelle wieder erreichbar."
+    mode: single
 ```
+
+### Warum die Meldungen nicht optional sind
+
+`unavailable` bedeutet **nicht** „kein Hagel", sondern „unbekannt". Solange die
+Entität nicht erreichbar ist, gibt es kein `on` — die Storen-Automation feuert
+nie. Das ist ein stiller Ausfall, den ohne `Hagelschutz – Ausfall` niemand
+bemerkt.
+
+Die VKF-Alarmkette greift ebenfalls, aber erst nach einer Stunde ohne
+Datenabholung und nur im Zeitfenster 08:00–22:00. Die lokale Meldung kommt nach
+15 Minuten und rund um die Uhr — sie ersetzt die Alarmkette nicht, sie kommt ihr
+zuvor. Ist Home Assistant selbst tot, bleibt nur die Alarmkette; auch deshalb
+gehört sie aktiviert.
 
 ### Kein automatisches Herunterfahren
 
@@ -133,7 +205,8 @@ Der Grund ist Sicherheit: Zwischen Warnung und Entwarnung liegen Minuten bis
 Stunden. In dieser Zeit kann jemand in den Garten gegangen sein oder eine
 Terrassentür geöffnet haben. Ein Storen, der ohne Anwesenheit von selbst
 herunterfährt, kann jemanden aussperren oder eine Tür blockieren. Hochfahren ist
-in jeder Situation ungefährlich, Herunterfahren nicht.
+in jeder Situation ungefährlich, Herunterfahren nicht. Deshalb meldet
+`Hagelschutz – Entwarnung` nur, statt zu handeln.
 
 Wer es dennoch automatisieren will, nimmt vor dem Hochfahren einen
 `scene.create`-Snapshot der Positionen und stellt ihn nach der Entwarnung mit
