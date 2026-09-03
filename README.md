@@ -123,6 +123,37 @@ Storen nach der Entwarnung in die Ausgangsposition zurückfährt.
    15 Minuten. Reine Verbindungsfehler werden nicht gemeldet — der POST würde
    ohnehin scheitern.
 
+## Fehlersuche
+
+Debug-Logging in `configuration.yaml` einschalten und Home Assistant neu starten:
+
+```yaml
+logger:
+  default: warning
+  logs:
+    custom_components.hagelschutz: debug
+```
+
+Beim Fehler *„Unerwarteter Fehler"* im Setup-Dialog steht der Grund als
+`ERROR`-Zeile im Log (`Unexpected API response: ...`), auch ohne Debug-Logging.
+Mit Debug-Logging kommt zusätzlich der Response-Body dazu.
+
+Die Schnittstelle lässt sich auch ohne Home Assistant direkt prüfen:
+
+```bash
+curl -sS -i "https://meteo.netitservices.com/api/v1/devices/<deviceId>/poll?hwtypeId=<hwtypeId>"
+```
+
+| Antwort | Bedeutung |
+|---------|-----------|
+| `200` + `{"currentState": 0}` | Beide Werte stimmen |
+| `401` / `403` / `404` | `deviceId` falsch oder Gerät nicht freigeschaltet |
+| `400` | meist eine unbekannte oder fehlende `hwtypeId` |
+| `5xx` | serverseitig — später erneut versuchen |
+
+> Debug-Logs und `curl -i`-Ausgaben können die `deviceId` enthalten. Vor dem
+> Teilen in einem Issue maskieren.
+
 ## Entwicklung
 
 ```bash

@@ -43,11 +43,17 @@ class HagelschutzConfigFlow(ConfigFlow, domain=DOMAIN):
             session = async_get_clientsession(self.hass)
             try:
                 await async_poll(session, device_id, hwtype_id)
-            except InvalidDevice:
+            except InvalidDevice as err:
+                _LOGGER.debug("Device rejected by the API: %s", err)
                 errors["base"] = "invalid_device"
-            except CannotConnect:
+            except CannotConnect as err:
+                _LOGGER.debug("Cannot reach the API: %s", err)
                 errors["base"] = "cannot_connect"
-            except HagelschutzApiError:
+            except HagelschutzApiError as err:
+                # Logged at error level on purpose: this is the bucket the user
+                # only sees as "unknown", so it must be diagnosable from the
+                # normal log without turning on debug logging first.
+                _LOGGER.error("Unexpected API response: %s", err)
                 errors["base"] = "unknown"
             except Exception:
                 _LOGGER.exception("Unexpected error while validating the device")

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from datetime import datetime
 
@@ -57,19 +58,38 @@ async def async_poll(
             if response.status in (401, 403, 404):
                 raise InvalidDevice(f"API rejected the device (HTTP {response.status})")
             if response.status != 200:
+                # The body often carries the actual reason (e.g. an unknown
+                # hwtypeId). Only at debug level — it is server-controlled and
+                # could echo the device ID back, which must not reach the
+                # normal log.
+                _LOGGER.debug(
+                    "Poll failed with HTTP %s, body: %s",
+                    response.status,
+                    (await response.text())[:500],
+                )
                 raise HagelschutzApiError(f"Unexpected HTTP status {response.status}")
             # The API does not always announce application/json.
-            payload = await response.json(content_type=None)
+            body = await response.text()
+            try:
+                payload = json.loads(body)
+            except ValueError as err:
+                _LOGGER.debug(
+                    "Poll returned non-JSON (content-type %s): %s",
+                    response.headers.get("Content-Type"),
+                    body[:500],
+                )
+                raise HagelschutzApiError(
+                    "API returned a non-JSON response"
+                ) from err
     except TimeoutError as err:
         raise CannotConnect("Timeout while polling the Hagelschutz API") from err
     except aiohttp.ClientResponseError as err:
         raise HagelschutzApiError(f"Unexpected HTTP status {err.status}") from err
     except aiohttp.ClientError as err:
         raise CannotConnect(f"Connection error: {err}") from err
-    except ValueError as err:
-        raise HagelschutzApiError("API returned a non-JSON response") from err
 
     if not isinstance(payload, dict) or "currentState" not in payload:
+        _LOGGER.debug("Poll response without currentState: %s", str(payload)[:500])
         raise HagelschutzApiError("API response has no currentState")
 
     try:
