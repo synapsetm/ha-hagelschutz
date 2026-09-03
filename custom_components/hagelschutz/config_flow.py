@@ -7,6 +7,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
@@ -27,16 +28,29 @@ from .coordinator import (
 _LOGGER = logging.getLogger(__name__)
 
 def normalize_device_id(value: str) -> str:
-    """Strip the separators a MAC address is usually written with."""
+    """Strip separators and the invisible characters a paste tends to carry."""
     for separator in DEVICE_ID_SEPARATORS:
         value = value.replace(separator, "")
     return value.strip()
 
 
+def parse_hwtype_id(value: Any) -> int:
+    """Read the hardware type out of the text field.
+
+    Raises ValueError if it is not a whole number.
+    """
+    return int(str(value).strip())
+
+
+# Both fields are text on purpose. A schema-level ``int`` renders as a number
+# box that Home Assistant pre-fills with 0, and typing a value next to that
+# zero silently produces a different number (188 next to 0 becomes 1880).
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_DEVICE_ID): str,
-        vol.Required(CONF_HWTYPE_ID): int,
+        vol.Required(CONF_DEVICE_ID): selector.TextSelector(),
+        vol.Required(CONF_HWTYPE_ID): selector.TextSelector(
+            selector.TextSelectorConfig(type=selector.TextSelectorType.NUMBER)
+        ),
     }
 )
 
@@ -54,13 +68,20 @@ class HagelschutzConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             device_id = normalize_device_id(user_input[CONF_DEVICE_ID])
-            hwtype_id = user_input[CONF_HWTYPE_ID]
+            hwtype_id = 0
 
             if len(device_id) != DEVICE_ID_LENGTH:
+                errors[CONF_DEVICE_ID] = "invalid_device_id_format"
+            try:
+                hwtype_id = parse_hwtype_id(user_input[CONF_HWTYPE_ID])
+            except (TypeError, ValueError):
+                errors[CONF_HWTYPE_ID] = "invalid_hwtype_id"
+
+            if errors:
                 return self.async_show_form(
                     step_id="user",
                     data_schema=STEP_USER_DATA_SCHEMA,
-                    errors={CONF_DEVICE_ID: "invalid_device_id_format"},
+                    errors=errors,
                 )
 
             await self.async_set_unique_id(device_id)

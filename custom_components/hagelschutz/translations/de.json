@@ -19,7 +19,8 @@
       "invalid_device": "Die Schnittstelle kennt diese Device-ID nicht",
       "unknown": "Unerwarteter Fehler",
       "invalid_parameters": "Die Schnittstelle hat die Werte abgelehnt (HTTP 400). Prüfe Device-ID und Hardware-Typ-ID.",
-      "invalid_device_id_format": "Die Device-ID muss 12 Zeichen haben — die Seriennummer aus dem VKF-Portal."
+      "invalid_device_id_format": "Die Device-ID muss 12 Zeichen haben — die Seriennummer aus dem VKF-Portal.",
+      "invalid_hwtype_id": "Die Hardware-Typ-ID muss eine Zahl sein."
     },
     "abort": {
       "already_configured": "Dieses Gerät ist bereits eingerichtet"

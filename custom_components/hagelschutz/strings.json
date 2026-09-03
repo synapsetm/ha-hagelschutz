@@ -19,7 +19,8 @@
       "invalid_device": "The API does not know this device ID",
       "unknown": "Unexpected error",
       "invalid_parameters": "The API rejected the values (HTTP 400). Check the device ID and the hardware type ID.",
-      "invalid_device_id_format": "The device ID must be 12 characters — the serial number from the VKF portal."
+      "invalid_device_id_format": "The device ID must be 12 characters — the serial number from the VKF portal.",
+      "invalid_hwtype_id": "The hardware type ID must be a number."
     },
     "abort": {
       "already_configured": "This device is already configured"

@@ -33,5 +33,5 @@ CONFIGURATION_URL: Final = "https://meteo.netitservices.com"
 # The interface description labels the field "MAC-Adresse (deviceID)" but defines
 # it as the 12-character serial number, and that is what the portal shows. The
 # separators are stripped anyway, in case someone enters a MAC after all.
-DEVICE_ID_SEPARATORS: Final = ":-. "
+DEVICE_ID_SEPARATORS: Final = ":-. \u00a0\u200b\t"
 DEVICE_ID_LENGTH: Final = 12
