@@ -57,6 +57,12 @@ async def async_poll(
     exception message or a log line.
     """
     url = f"{API_BASE}/devices/{device_id}/poll"
+    _LOGGER.debug(
+        "Polling with hwtypeId=%r (%s), device id length %d",
+        hwtype_id,
+        type(hwtype_id).__name__,
+        len(device_id),
+    )
     try:
         async with session.get(
             url,
@@ -67,8 +73,11 @@ async def async_poll(
                 raise InvalidDevice(f"API rejected the device (HTTP {response.status})")
             if response.status in (400, 422):
                 _LOGGER.debug(
-                    "Poll rejected with HTTP %s, body: %s",
+                    "Poll rejected with HTTP %s for %s, body: %s",
                     response.status,
+                    # The device ID is masked; everything else is what actually
+                    # went over the wire, including how the query was encoded.
+                    str(response.request_info.url).replace(device_id, "***"),
                     (await response.text())[:500],
                 )
                 raise InvalidParameters(
