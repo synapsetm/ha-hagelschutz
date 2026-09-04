@@ -1,5 +1,10 @@
 # Hagelschutz – einfach automatisch (Home Assistant)
 
+[![HACS: Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
+[![Release](https://img.shields.io/github/v/release/synapsetm/ha-hagelschutz)](https://github.com/synapsetm/ha-hagelschutz/releases)
+[![Validate](https://github.com/synapsetm/ha-hagelschutz/actions/workflows/validate.yml/badge.svg)](https://github.com/synapsetm/ha-hagelschutz/actions/workflows/validate.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 Custom Integration, die das Hagelwarnsignal der VKF/VKG als Binary Sensor in Home
 Assistant bereitstellt. Sie ersetzt die Signalbox: Home Assistant pollt die
 VKF-Schnittstelle selbst und fährt die Storen über eigene Automationen hoch.
@@ -50,10 +55,20 @@ bestätigt.
 
 ## Installation
 
-### HACS
-1. HACS → Integrationen → ⋮ → *Custom repositories*
-2. Repository `https://github.com/synapsetm/ha-hagelschutz`, Kategorie *Integration*
-3. Installieren, Home Assistant neu starten
+### HACS (empfohlen)
+
+Diese Integration ist **nicht** im HACS-Standardkatalog. Sie wird als *Custom
+repository* hinzugefügt — einmalig, danach kommen Updates wie bei jeder anderen
+HACS-Integration.
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=synapsetm&repository=ha-hagelschutz&category=integration)
+
+Falls der Knopf nicht funktioniert, von Hand:
+
+1. HACS → ⋮ (oben rechts) → *Custom repositories*
+2. Repository `https://github.com/synapsetm/ha-hagelschutz`, Typ *Integration*, → *Add*
+3. *Hagelschutz – einfach automatisch* suchen → *Download*
+4. Home Assistant neu starten
 
 ### Manuell
 `custom_components/hagelschutz/` in den `config/custom_components/`-Ordner kopieren
