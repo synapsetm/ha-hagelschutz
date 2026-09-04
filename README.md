@@ -238,10 +238,10 @@ Wer es dennoch automatisieren will, nimmt vor dem Hochfahren einen
 Türkontakt-Bedingung.
 
 > [!NOTE]
-> Die VKF-Funktionskontrolle sieht vor, dass die Storen nach dem Deaktivieren des
-> Testalarms wieder herunterfahren. Ohne automatisches Herunterfahren ist dieser
-> Schritt manuell auszuführen. Wenn du das Abnahmeprotokoll unterschreibst, kläre
-> vorher mit der VKF, ob das für dein Objekt so akzeptiert wird.
+> Die VKF-Funktionskontrolle beschreibt, dass die Storen nach dem Deaktivieren
+> des Testalarms wieder herunterfahren — ohne Automatik macht man das von Hand.
+> Das Abnahmeprotokoll fragt es nicht ab: Dort werden nur Signalempfang,
+> erfolgreiches Hochfahren und aktivierte Alarmkette bestätigt.
 
 ## Betriebshinweise
 
